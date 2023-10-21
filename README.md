@@ -1,6 +1,10 @@
 # Next.jsの環境構築
+- [Next.jsの環境構築](#nextjsの環境構築)
+	- [Next.jsのdocker-compose環境構築手順](#nextjsのdocker-compose環境構築手順)
+	- [docker-composeリソースの削除手順](#docker-composeリソースの削除手順)
+	- [自動化スクリプト](#自動化スクリプト)
 
-## Next.jsのdocker-compse環境構築手順
+## Next.jsのdocker-compose環境構築手順
 1. ルートディレクトリ直下の`.env.example`を.envrcにリネームしてポート設定やプロジェクト名などの設定を編集をする。
 **ポートはホスト側のポートと衝突しないようにする。**
 ```
@@ -38,6 +42,18 @@ UPLOAD_LIMIT=64M
 ## docker-composeリソースの削除手順
 
 1. `docker-compose down`を実行
-2. `sudo rm -rf .${PROJECT_NAME}/db/init/init.sql`削除
+2. `sudo rm -f .${PROJECT_NAME}/db/init/init.sql`削除
+4. `sudo rm -f .${PROJECT_NAME}/.env` .envファイル削除
 3. `sudo rm -rf .${PROJECT_NAME}/db/data` ディレクトリを削除
-4. `.${PROJECT_NAME}`ディレクトリ名をを.devcontainerに変更
+5. `.${PROJECT_NAME}`ディレクトリ名をを.devcontainerに変更
+
+
+## 自動化スクリプト
+
+.envrcファイルの環境変数を設定してから以下コマンドを実行すると、docker-composeのコンテナを立ち上げまでを自動実行する。
+
+1. `.envrc`ファイルの環境変数を設定
+2. nextjs_envディレクトリ直下で実行する。立ち上げは下記コマンドを実行
+- `sudo bash ./bin/setup_docker_environment.sh`
+3. nextjs_envディレクトリ直下で実行する。立ち上げた環境を初期状態に戻す
+- `sudo bash ./bin/reset_docker_environment.sh `

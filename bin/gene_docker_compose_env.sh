@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #### docker-compse.ymlの.envファイルを生成するスクリプト ####
 
