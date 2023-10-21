@@ -64,7 +64,8 @@ services:
     container_name: ${APP_NAME}-node
     ports:
       - ${NODE_PORT}:3000
-      # - ${STRAPI_PORT}:1337
+    expose:
+      - 3000
     depends_on:
       - db
     volumes:

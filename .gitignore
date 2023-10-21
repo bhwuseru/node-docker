@@ -1,6 +1,7 @@
 /php/*/*
 /node/*/*
 /frontend/
+.bash_history
 .envrc
 .env
 configurationCache.log
