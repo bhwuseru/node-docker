@@ -3,6 +3,11 @@
 # Dockerで利用する環境変数 ##
 export PROJECT_ROOT=$(pwd)
 export PROJECT_NAME=nextjs
+
+# この環境変数にプロジェクトのマウント先のディレクトリパスを記述する
+# このパスがDockerのnodeコンテナのエントリーポイントとなる
+export VOLUME_PATH=${HOME}/projects
+
 export APP_NAME=nextjs
 export DB_DATABASE=nextjs_db
 export DB_USER=user
