@@ -16,7 +16,13 @@ if [ -d "$(pwd)/.devcontainer" ]; then
     . ./bin/gene_docker_compose_env.sh
 fi
 
-source .envrc && \
+source .envrc
+# install_nextjs.shがボリューム先のディレクトリパスに存在するかチェック
+if [ ! -e "${VOLUME_PATH}/install_nextjs.sh" ]; then
+    # install_nextjs.shをボリューム先ディレクトリパスにコピーする
+    cp "${PROJECT_ROOT}/.${PROJECT_NAME}/node/install_nextjs.sh" "${VOLUME_PATH}/"
+fi
+
 cd .${PROJECT_NAME} 
 
 # dangling Dockerイメージの削除
