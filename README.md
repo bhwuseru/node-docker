@@ -1,7 +1,7 @@
 # Next.jsの環境構築
 - [Next.jsのdocker-compose環境構築手順](#nextjsのdocker-compose環境構築手順)
 - [docker-composeリソースの削除手順](#docker-composeリソースの削除手順)
-- [自動化スクリプト](#自動化スクリプト)
+- [Make自動化スクリプト](#make-自動化スクリプト)
 
 ## Next.jsのdocker-compose環境構築手順
 1. ルートディレクトリ直下の`.env.example`を.envrcにリネームしてポート設定やプロジェクト名などの設定を編集をする。
@@ -26,7 +26,7 @@
 	UPLOAD_LIMIT=64M
 	```
 
-- **[面倒くさい人は自動化スクリプトを参照](#自動化スクリプト)**
+- **[面倒くさい人はMake自動化スクリプト](#make-自動化スクリプト)**
 
 2. プロジェクトルートディレクトリで `. ./bin/gene_docker_compose_env.sh`
 - スクリプトを実行するとルートディレクトリ直下の.devcontainerディレクトリ名が .${PROJECT_NAME}に変更される。
