@@ -55,19 +55,20 @@
 5. `.${PROJECT_NAME}`ディレクトリ名をを.devcontainerに変更
 
 
-## 自動化スクリプト
-
-.envrcファイルの環境変数を設定してから以下コマンドを実行すると、docker-composeのコンテナを立ち上げまでを自動実行する。
-
-1. `.envrc`ファイルの環境変数を設定
-2. nextjs_envディレクトリ直下で実行する。立ち上げは下記コマンドを実行<br>
-**注意点**
-自動化スクリプト生成時に.envrc.example
-下記環境変数: ${HOME}を利用する場合はsudo権限で実行するとrootパスになるので注意
-```
-# プロジェクトのボリュームパス
-export VOLUME_PATH=${HOME}/projects
-```
+## Make 自動化スクリプト
+以下コマンドを実行するとdockerのコンテナの自動で作成と削除を実行してくれる。
+- makeが導入されていない場合は以下コマンドで導入する。
+    ```
+    sudo apt install make
+    ```
+- .envrcファイルの定義情報を元にdocker-composeの開発環境を構築する。
+	```
+    make container-init
+    ```
+- docker-composeの環境を一旦削除して初期状態に戻したい場合は以下を実行する。
+    ```
+    make container-remove 
+    ```
 
 `setup_docker_environment.sh`のみsudo権限付与しないで実行する。<br>
 **sudoで実行すると${HOME}がルートパスになるため注意**

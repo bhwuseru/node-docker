@@ -3,10 +3,11 @@
 # Dockerで利用する環境変数 ##
 export PROJECT_ROOT=$(pwd)
 export PROJECT_NAME=nextjs
-
+# .devcontainerから$PROJECT_NAMEの置き換わるパス
+export PROJECT_NAME_DIR_PATH="${PROJECT_ROOT}/.${PROJECT_NAME}"
 # この環境変数にプロジェクトのマウント先のディレクトリパスを記述する
 # このパスがDockerのnodeコンテナのエントリーポイントとなる
-export VOLUME_PATH=${HOME}/projects
+export VOLUME_PATH="${HOME}/projects"
 
 export APP_NAME=nextjs
 export DB_DATABASE=nextjs_db
@@ -23,5 +24,4 @@ export PHP_MYADMIN_PUBLIC_PORT=29102
 # proxy service 公開側ポート
 export PROXY_PUBLIC_PORT=29101
 export PROXY_SSH_PORT=
-# バックエンドでNode jsを使用する場合はは下記に任意のポートを指定する
 export NODE_PORT=3000
