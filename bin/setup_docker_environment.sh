@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# docker-compose環境のセットアップとコンテナの起動する
-
 # .env ファイルのパスを設定
 envfile_path="$(pwd)/.devcontainer/.env"
 
@@ -17,10 +15,12 @@ if [ -d "$(pwd)/.devcontainer" ]; then
 fi
 
 source .envrc
-# install_nextjs.shがボリューム先のディレクトリパスに存在するかチェック
-if [ ! -e "${VOLUME_PATH}/install_nextjs.sh" ]; then
+# install.shがボリューム先のディレクトリパスに存在するかチェック
+if [ ! -e "${VOLUME_PATH}/install.sh" ]; then
+	# 実行権限付与
+    chmod +x "${PROJECT_NAME_DIR_PATH}/node/install.sh"
     # install.shをボリューム先ディレクトリパスにコピーする
-    cp "${PROJECT_NAME_DIR_PATH}/node/install_nextjs.sh" "${VOLUME_PATH}/"
+    cp "${PROJECT_NAME_DIR_PATH}/node/install.sh" "${VOLUME_PATH}/"
 fi
 
 cd ."${PROJECT_NAME}" || return
