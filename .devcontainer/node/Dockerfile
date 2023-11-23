@@ -38,7 +38,7 @@ RUN npm install -g npm@latest
 # ディレクトリを変更してからユーザーを切り替える
 WORKDIR /home/${USER}
 
-# ユーザーに切り替える
-USER ${USER}
+# node切り替える
+USER node
 
 CMD ["bash"]
