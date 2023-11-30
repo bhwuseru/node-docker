@@ -19,24 +19,16 @@ RUN apk add --no-cache bash
 # sudoをインストール
 RUN apk add --no-cache sudo
 
-# ユーザーを作成し、必要なディレクトリに書き込み権限を付与する
-RUN adduser -D -u 1001 ${USER} && \
-    mkdir -p /home/${USER} && \
-    chown -R ${USER}:${USER} /home/${USER} && \
-    mkdir -p /home/${USER}/.npm && \
-    chown -R ${USER}:${USER} /home/${USER}/.npm
-
-# ユーザーのパスワードを設定
-RUN echo "${USER}:${PASSWORD}" | chpasswd
 # sudo実行時のパスワード入力を省略
-RUN echo "${USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER}
+RUN echo "node ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/node
 
 # Node.jsをインストールし、npmをアップグレード
 RUN apk add --no-cache nodejs npm
 RUN npm install -g npm@latest
 
 # ディレクトリを変更してからユーザーを切り替える
-WORKDIR /home/${USER}
+# WORKDIR /home/${USER}
+WORKDIR /home/node
 
 # node切り替える
 USER node
