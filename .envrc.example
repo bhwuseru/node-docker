@@ -16,6 +16,7 @@ export APP_NAME="$PROJECT_NAME"
 export DB_DATABASE="${PROJECT_NAME}_db"
 export DB_USER=user
 export DB_PASSWORD=password
+export PASSWORD=password
 export USER=user
 
 # 128Mの形式で指定する

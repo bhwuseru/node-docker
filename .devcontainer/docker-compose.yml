@@ -63,8 +63,7 @@ services:
       args:
         PROJECT_NAME: ${PROJECT_NAME}
         USER: ${USER}
-        DB_DATABASE: ${DB_DATABASE}
-        PASSWORD: ${DB_PASSWORD}
+        PASSWORD: ${PASSWORD}
     container_name: ${APP_NAME}-node
     ports:
       - ${NODE_PORT}:3000
@@ -73,8 +72,8 @@ services:
     depends_on:
       - db
     volumes:
-      - ${VOLUME_PATH}/:/home/${USER}
+      # - ${VOLUME_PATH}/:/home/${USER}
+      - ${VOLUME_PATH}/:/home/node
     tty: true
     environment:
-      DB_DATABASE: ${DB_DATABASE}
-      DB_PASSWORD: ${DB_PASSWORD}
+      PASSWORD: ${PASSWORD}
