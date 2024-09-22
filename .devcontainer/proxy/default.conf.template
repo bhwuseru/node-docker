@@ -1,26 +1,28 @@
 server {
-    listen       80; # ←SSLのときはコメントアウト
-    
+    listen       80;
     server_name  127.0.0.1;
     client_max_body_size 2m;
 
     access_log /dev/stdout;
     error_log  /dev/stderr;
 
-    # Next.js index.htmlが配置されるフォルダのパス # buildで生成する場合
-    root   /var/www/html/${PROJECT_NAME}/out;
+    # 静的ファイルを生成する場合は、Next.js index.htmlが配置されるフォルダのパス 
+    # root   /var/www/html/${PROJECT_NAME}/out;
 
-	# 静的ファイルを配置する場合
-    location / {
-        index  index.html index.htm;
-    }
+    # nodejs利用。 動的の場合は以下
+    root /var/www/html/${PROJECT_NAME}/.next;
+
+	# 静的ファイルを配置する場合は下記を設定
+    # location / {
+    #    index  index.html index.htm;
+    # }
 
 	# node jsを利用する場合は下記で設定
-    # location /.next/ {
-        # proxy_set_header Host $host;
-        # proxy_set_header X-Real-IP $remote_addr;
-        # proxy_pass http://localhost:3000;  # Next.jsアプリの実行ポートに合わせて設定
-    # } 
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_pass http://node:3000;  # Next.jsアプリの実行ポートに合わせて設定
+    } 
 
     # WebSocketの設定
     location /ws/ {
