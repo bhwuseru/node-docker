@@ -3,7 +3,7 @@
 # Dockerで利用する環境変数 ##
 export PROJECT_ROOT=$(pwd)
 # プロジェクト名
-export PROJECT_NAME=sample
+export PROJECT_NAME=picsle
 
 # .devcontainerから$PROJECT_NAMEの置き換わるパス
 export PROJECT_NAME_DIR_PATH="${PROJECT_ROOT}/.${PROJECT_NAME}"
@@ -24,8 +24,12 @@ export MEMORY_LIMIT=128M
 export UPLOAD_LIMIT=64M
 
 # PhpMyadmin servic 公開側ポート
-export PHP_MYADMIN_PUBLIC_PORT=18080
+export PHP_MYADMIN_PUBLIC_PORT=19000
 # proxy service 公開側ポート
-export PROXY_PUBLIC_PORT=18081
-export PROXY_SSL_PORT=18082
-export NODE_PORT=18083
+export PROXY_PUBLIC_PORT=19001
+export PROXY_SSL_PORT=19002
+export NODE_PORT=3000
+# フロント websocketポート
+export WEBSOCKET_PORT=19003
+# サーバー websocketポート
+export SERVER_WEBSOCKET_PORT=3002

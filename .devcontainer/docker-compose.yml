@@ -1,7 +1,7 @@
-version: '3'
+version: "3"
 services:
   proxy:
-    # platform: linux/x86_64 
+    # platform: linux/x86_64
     build:
       context: ./proxy
     container_name: ${APP_NAME}-proxy
@@ -57,7 +57,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Tokyo
   node:
-    # platform: linux/x86_64 
+    # platform: linux/x86_64
     build:
       context: ./node
       args:
@@ -67,12 +67,13 @@ services:
     container_name: ${APP_NAME}-node
     ports:
       - ${NODE_PORT}:3000
+      - ${WEBSOCKET_POR}:${SERVER_WEBSOCKET_PORT}
     expose:
       - 3000
+      - ${SERVER_WEBSOCKET_PORT}
     depends_on:
       - db
     volumes:
-      # - ${VOLUME_PATH}/:/home/${USER}
       - ${VOLUME_PATH}/:/home/node
     tty: true
     environment:
