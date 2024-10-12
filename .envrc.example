@@ -3,7 +3,7 @@
 # Dockerで利用する環境変数 ##
 export PROJECT_ROOT=$(pwd)
 # プロジェクト名
-export PROJECT_NAME=picsle
+export PROJECT_NAME=sample
 
 # .devcontainerから$PROJECT_NAMEの置き換わるパス
 export PROJECT_NAME_DIR_PATH="${PROJECT_ROOT}/.${PROJECT_NAME}"
