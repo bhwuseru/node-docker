@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 services:
   proxy:
     # platform: linux/x86_64
@@ -77,7 +77,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ${VOLUME_PATH}/:/home/node
+      - ${VOLUME_PATH}/:/var/www/html
     tty: true
     environment:
       PASSWORD: ${PASSWORD}

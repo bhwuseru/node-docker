@@ -1,4 +1,4 @@
-FROM node:20.14.0-slim
+FROM node:21.7.3-slim
 
 # コンテナ内の環境変数を定義するための引数
 ARG PROJECT_NAME
@@ -14,22 +14,50 @@ ENV PASSWORD=${PASSWORD}
 ENV LANG ja_JP.UTF-8
 ENV LANGUAGE ja_JP:jp
 ENV LC_ALL ja_JP.UTF-8
-RUN echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen
+
+# rootユーザーに切替
+USER root
+
+# パッケージのインストール前に追加
+SHELL ["/bin/bash", "-c"]
+
+# パッケージのインストール
+RUN apt-get clean && apt-get update \
+  && apt-get install -y \
+  sudo \
+  locales \
+  git \
+  vim \
+  && echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen \
+  && locale-gen ja_JP.UTF-8 \
+  && rm -rf /var/lib/apt/lists/*
 
 # タイムゾーンを設定
 ENV TZ=Asia/Tokyo
 
-# ユーザーをルートに切り替える
-USER root
+# 一般権限のユーザーを追加
+RUN useradd -m -s /bin/bash ${USER} --uid 2000 && \
+  echo "${USER}:${PASSWORD}" | chpasswd && \
+  usermod -aG sudo ${USER}
 
+# ホームディレクトリの権限を修正
+RUN chown -R ${USER}:${USER} /home/${USER}
+
+# VS Codeサーバー用ディレクトリの設定
+RUN mkdir -p /home/${USER}/.vscode-server/data/Machine && \
+  chown -R ${USER}:${USER} /home/${USER}/.vscode-server
+
+# sudo実行時のパスワード入力を省略
+RUN echo "${USER} ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/${USER}
 
 # .bashrcをコピー
-COPY .bashrc /home/node/.bashrc
+COPY .bashrc /home/${USER}/.bashrc
 
-# ディレクトリを変更してからユーザーを切り替える
-WORKDIR /home/node
-
-# nodeユーザーに切り替える
+# ユーザーの切替
 USER node
+
+# 作業ディレクトリに移動
+WORKDIR /var/www/html
+
 
 CMD ["bash"]
