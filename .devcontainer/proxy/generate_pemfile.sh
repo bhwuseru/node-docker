@@ -5,6 +5,7 @@
 # https通信に必要なコマンドチェック
 if type mkcert > /dev/null 2>&1; then
 		mkcert -cert-file ./localhost.pem -key-file ./localhost-key.pem localhost
+		mv ./localhost.pem ./ssl/ && mv ./localhost-key.pem  ./ssl/
 else
 		# 存在しない場合はインストール
 		OS_NAME=$(uname)
