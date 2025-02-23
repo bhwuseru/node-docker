@@ -48,14 +48,3 @@ else
     echo "dockerが存在しません"
     exit;
 fi
-
-# mkcertが存在しない場合はインストール 
-if ! type mkcert > /dev/null 2>&1; then
-    sudo apt install -y mkcert
-fi
-
-# pemが存在しない場合は生成
-if [[ ! -f "${PROJECT_NAME_DIR_PATH}/proxy/localhost.pem" ]]; then
-    echo "localhost.pem が見つかりません。mkcert で作成します。"
-    mkcert -cert-file "${PROJECT_NAME_DIR_PATH}/proxy/ssl/localhost.pem" -key-file "${PROJECT_NAME_DIR_PATH}/proxy/ssl/localhost-key.pem" localhost
-fi

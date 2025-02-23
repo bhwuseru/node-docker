@@ -46,8 +46,15 @@ DOCKER_ENVFILE_PATH="${PROJECT_NAME_DIR_PATH}/.env"
 [ -d "${PROJECT_NAME_DIR_PATH}/db/data" ] && rm -rf "${PROJECT_NAME_DIR_PATH}/db/data"
 
 # SQLファイル作成
-DB_INIT_SQLFILE_PATH="${PROJECT_NAME_DIR_PATH}/db/init/init.sql"
-echo "CREATE DATABASE IF NOT EXISTS ${DB_DATABASE} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;" > "$DB_INIT_SQLFILE_PATH"
+echo "CREATE DATABASE IF NOT EXISTS \`${DB_DATABASE}_test\` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci; GRANT ALL PRIVILEGES ON \`${DB_DATABASE}_test\`.* TO '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}'; FLUSH PRIVILEGES;" > "${PROJECT_NAME_DIR_PATH}/db/init/init.sql"
 
-# テスト用SQLファイル作成
-echo "CREATE DATABASE IF NOT EXISTS ${DB_DATABASE}_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;" >> "$DB_INIT_SQLFILE_PATH"
+# mkcertが存在しない場合はインストール 
+if ! type mkcert > /dev/null 2>&1; then
+    sudo apt install -y mkcert
+fi
+
+# pemが存在しない場合は生成
+if [[ ! -f "${PROJECT_NAME_DIR_PATH}/proxy/localhost.pem" ]]; then
+    echo "localhost.pem が見つかりません。mkcert で作成します。"
+    mkcert -cert-file "${PROJECT_NAME_DIR_PATH}/proxy/ssl/localhost.pem" -key-file "${PROJECT_NAME_DIR_PATH}/proxy/ssl/localhost-key.pem" localhost
+fi

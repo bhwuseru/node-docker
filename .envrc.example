@@ -23,7 +23,7 @@ export USER=user
 export PROXY_TEMPLATE_NAME=default.conf.templateForSSL
 
 # コンテナ内の/etc/hostsにホスト名とIPを紐づけたい場合はdocker-compose.ymlの環境変数つかっている箇所をアンコメントアウトする
-export HOSTNAME=
+export HOSTNAME=$(hostname).local
 export HOST_IP=
 
 
