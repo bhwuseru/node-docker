@@ -5,40 +5,43 @@ server {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name  127.0.0.1;
+    server_name ${HOSTNAME}; 
+
     client_max_body_size 2m;
 
     ssl_certificate /etc/nginx/ssl/localhost.pem; # サーバ証明書
     ssl_certificate_key /etc/nginx/ssl/localhost-key.pem; # 秘密鍵
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
 
     access_log /dev/stdout;
     error_log  /dev/stderr;
 
-    # Next.js index.htmlが配置されるフォルダのパス # buildで生成する場合
+    # Next.jsのルートディレクトリ
+    # 静的でNext.js index.htmlが配置されるフォルダのパス # buildで生成する場合
     # root   /var/www/html/${PROJECT_NAME}/out;
-
-    # nodejs利用。 動的の場合は以下
-    root /var/www/html/${PROJECT_NAME}/.next;
-
-	# 静的ファイルを配置する場合
+    # 静的ファイルを配置する場合
     # location / {
     #    index  index.html index.htm;
     # }
 
-	# node jsを利用する場合は下記で設定
+    # nodejs利用。 動的の場合は以下
+    root /var/www/html/${PROJECT_NAME}/.next;
+
     location / {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_pass http://node:3000;  # Next.jsアプリの実行ポートに合わせて設定
+        proxy_pass http://node:3000; # Next.jsアプリの実行ポート
     } 
 
-   # WebSocketの設定
+    # WebSocketの設定
     location /ws/ {
-        proxy_pass http://node:443; # WebSocketのnodeコンテナポート
+        proxy_pass http://node:3005; # Node.jsのWebSocketポート
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
-    } 
+    }
 }

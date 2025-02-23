@@ -46,5 +46,5 @@ elif docker compose version | grep -q Docker; then
     cd ..
 else
     echo "dockerが存在しません"
+    exit;
 fi
-
