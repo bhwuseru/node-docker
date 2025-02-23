@@ -1,4 +1,5 @@
-FROM node:21.7.3-slim
+# FROM node:20.17.0-alpine3.20
+FROM node:23.8.0-alpine3.21
 
 # コンテナ内の環境変数を定義するための引数
 ARG PROJECT_NAME
@@ -9,55 +10,53 @@ ARG USER
 ENV PROJECT_NAME=${PROJECT_NAME}
 ENV USER=${USER}
 ENV PASSWORD=${PASSWORD}
+ENV TZ=Asia/Tokyo
+ENV PATH="/opt/venv/bin:$PATH"
 
-# ロケール設定
-ENV LANG ja_JP.UTF-8
-ENV LANGUAGE ja_JP:jp
-ENV LC_ALL ja_JP.UTF-8
-
-# rootユーザーに切替
+# ユーザーをルートに切り替える
 USER root
 
-# パッケージのインストール前に追加
-SHELL ["/bin/bash", "-c"]
-
-# パッケージのインストール
-RUN apt-get clean && apt-get update \
-  && apt-get install -y \
-  sudo \
-  locales \
+# 必要なパッケージをインストール
+RUN apk add --no-cache \
+  bash \
   git \
-  vim \
-  && echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen \
-  && locale-gen ja_JP.UTF-8 \
-  && rm -rf /var/lib/apt/lists/*
+  sudo \
+  python3 \
+  py3-pip \
+  curl \
+  icu-libs  # glibc の代わりに icu-libs を使用
 
-# タイムゾーンを設定
-ENV TZ=Asia/Tokyo
+# Supervisor のインストール (仮想環境を使用)
+RUN python3 -m venv /opt/venv && \
+  . /opt/venv/bin/activate && \
+  pip install --upgrade pip && \
+  pip install supervisor
 
-# 一般権限のユーザーを追加
-RUN useradd -m -s /bin/bash ${USER} --uid 2000 && \
-  echo "${USER}:${PASSWORD}" | chpasswd && \
-  usermod -aG sudo ${USER}
-
-# ホームディレクトリの権限を修正
-RUN chown -R ${USER}:${USER} /home/${USER}
-
-# VS Codeサーバー用ディレクトリの設定
-RUN mkdir -p /home/${USER}/.vscode-server/data/Machine && \
-  chown -R ${USER}:${USER} /home/${USER}/.vscode-server
+# Supervisor の設定
+RUN mkdir -p /etc/supervisor \
+  && echo_supervisord_conf > /etc/supervisor/supervisord.conf
 
 # sudo実行時のパスワード入力を省略
-RUN echo "${USER} ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/${USER}
+RUN echo "node ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/node
+
+# Node.jsをインストールし、npmをアップグレード
+RUN apk add --no-cache nodejs npm \
+  && npm install -g npm@latest \
+  && npm install -g pm2
+
+# npm のキャッシュディレクトリの権限を修正 (EACCES対策)
+RUN mkdir -p /home/node/.npm && chown -R node:node /home/node/.npm
 
 # .bashrcをコピー
-COPY .bashrc /home/${USER}/.bashrc
+COPY .bashrc /home/node/.bashrc
 
-# ユーザーの切替
-USER node
+# `/var/www/html` の作成とパーミッション設定
+RUN mkdir -p /var/www/html && chown -R node:node /var/www/html
 
-# 作業ディレクトリに移動
+# ディレクトリを変更してからユーザーを切り替える
 WORKDIR /var/www/html
 
+# nodeユーザーに切り替える
+USER node
 
-CMD ["bash"]
+# CMD ["/usr/local/bin/start_supervisor.sh"]
