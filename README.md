@@ -1,78 +1,137 @@
-# Next.jsの環境構築
-- [Next.jsのdocker-compose環境構築手順](#nextjsのdocker-compose環境構築手順)
-- [本番環境のビルド時の注意点](#本番環境のビルド時の注意点)
-- [make自動化スクリプト実行手順](#make自動化スクリプト実行手順)
+# 環境構築資料（Ansible対応版）
 
-## Next.jsのdocker-compose環境構築手順
-1. ルートディレクトリ直下の`.envrc.example`を.envrcにリネームしてポート設定やプロジェクト名などの設定を編集をする。<br>
-- **補足**<br>
-.envrc定義情報を元にdocker-compose.ymlが参照する.envファイルを作成する。<br>
-**ポートはホスト側のポートと衝突しないようにする。**<br>
+- [環境構築資料（Ansible対応版）](#環境構築資料ansible対応版)
+  - [置くところ](#置くところ)
+    - [構造](#構造)
+  - [dockerでSSLをつかう(windowsの方法)](#dockerでsslをつかうwindowsの方法)
+  - [Laravelのライブラリ導入とコマンド一覧](#laravelのライブラリ導入とコマンド一覧)
+  - [Ansible + Docker開発環境構築手順](#ansible--docker開発環境構築手順)
+    - [必要条件とツールの導入](#必要条件とツールの導入)
+    - [構築手順](#構築手順)
+    - [Ansible構成ファイル](#ansible構成ファイル)
+  - [コンテナ初回起動後の作業](#コンテナ初回起動後の作業)
+  - [開発環境URLアクセス法](#開発環境urlアクセス法)
+  - [Makeコマンド](#makeコマンド)
+  - [Dockerコマンド](#dockerコマンド)
 
-## 本番環境のビルド方法
-1. 静的ファイルのビルド方法と設定<br>
-.devcontainer/node/html/next.config.js.exampleを参考にビルド設定をする
+# 置くところ
 
-	```
-	/** @type {import('next').NextConfig} */
+プロジェクトは WSL 上の Linux 環境（例：`~/projects/laravel-docker`）に配置することでパフォーマンスが向上します。
 
-	const isDevelopmet = process.env.NODE_ENV !== 'production'    
-	const nextConfig = {
-		// output/index.htmlを生成する場合は下記を追記
-		output: 'export',
-		images: {
-			unoptimized: true
-		},
-		assetPrefix: isDevelopmet ? '' : '',   
-	}
+# dockerでSSLをつかう(windowsの方法)
 
-	module.exports = nextConfig
-	```
+## 作る
 
-2. 設定後に`npm run build`または`yarn build`を実行すると静的ファイルが生成される。
-	```
-	# 実行後にout/index.htmlが生成される
-	yarn build
-	```
+参考: [https://shimota.app/windows環境にhttps-localhost-環境を作成する/](https://shimota.app/windows環境にhttps-localhost-環境を作成する/)
 
-1. メモリ不足でビルドできない。
-環境変数を設定することでnodejsのメモリ使用量を設定できる。
-	```
-	export NODE_OPTIONS="--max-old-space-size=1024"
-	```
-## make自動化スクリプト実行手順
-以下コマンドを実行するとdockerのコンテナを自動で作成と削除を実行してくれる。
-1. makeが導入されていない場合は以下コマンドで導入する。
-    ```
-    sudo apt install make
-    ```
-2. .envrcファイルの定義情報を元にdocker-composeの開発環境を構築する。
-	```
-    make container-init
-	```
-3. .envrcで定義した環境変数`${PROJECT_NAME}-node`というdockerコンテナが作成されているので、ダッシュボードからアタッチする。<br> 
-または下記コマンドを実行するとコンテナ内に入れる。
-	```
-	docker exec -it ${PROJECT_NAME}-node  /bin/bash  
-	```
-4. コンテナ内に入るとinstall.shスクリプトが配置されているのでプロジェクトがまだ一度も作成されていない場合は以下を実行する。
-	```
-	. ./install.sh
-	```
-5. .envrc定義情報の以下ポートにアクセスできる。<br>
- **補足**<br>
- proxy service 公開側ポートは.devcontainer/node直下に存在するnext.config.js.example内容をnext.config.jsに上書きしnpm run buildを実行すること。
-	```
-	# PhpMyadmin servic 公開側ポート
-	export PHP_MYADMIN_PUBLIC_PORT=
-	# proxy service 公開側ポート npm run build
-	export PROXY_PUBLIC_PORT=
-	# 開発サーバーのポート npm run dev
-	export NODE_PORT=
-	```
+1. Chocolatey を管理者 PowerShell でインストール
+2. `choco install mkcert` 実行後、`mkcert --install`
+3. `localhost.pem`, `localhost-key.pem` を保存
 
-6. docker-composeの環境を一旦削除して初期状態に戻したい場合は以下を実行する。
-    ```
-    make container-remove 
-    ```
+## 使う
 
+`.devcontainer/proxy/ssl` に上記 pem ファイルを配置してください。 ※ 自動生成されない場合は手動配置が必要です。
+
+# Laravelのライブラリ導入とコマンド一覧
+
+詳細は `laravel/README.md` を参照してください。
+
+# Ansible + Docker開発環境構築手順
+
+## 必要条件とツールの導入
+
+以下が導入されていることを確認してください：
+
+- Docker
+- Docker Compose（旧式またはプラグイン）
+- mkcert
+- Ansible
+- GNU Make
+
+Ubuntu での Ansible 導入：
+
+```sh
+sudo apt update && sudo apt install -y ansible
+```
+
+## 構築手順
+
+1. `vars/secrets.example.yml` を `vars/secrets.yml` にリネームし、プロジェクト設定を記述：
+
+```yml
+project_name: sample
+db_name: sample_db
+db_user: user
+db_password: password
+nodejs_version: 20.x
+laravel_version: 11.*
+proxy_template_name: default.conf.templateForSSL
+...
+```
+
+2. Make コマンドで開発環境を初期化：
+
+```sh
+make container-init
+```
+
+このコマンドにより以下が自動実行されます：
+
+- `.devcontainer` → `.{{ project_name }}` にリネーム
+- `.env` ファイルの生成（テンプレートから）
+- `init.sql` の生成（テンプレートから）
+- `proxy/ssl` ディレクトリの作成と pem ファイルの発行（mkcert）
+- Docker Compose によるビルド＆起動
+
+## Ansible構成ファイル
+
+- `ansible/environment-setup.yml`: 開発環境をセットアップする
+- `ansible/docker-build-up.yml`: コンテナビルド＆起動
+- `ansible/docker-container-reset.yml`: コンテナ停止＆削除
+- `vars/secrets.yml`: 環境変数の定義（project\_name など）
+- `templates/env.j2`, `templates/init.sql.j2`: .env や SQL のテンプレート
+
+# コンテナ初回起動後の作業
+
+初回起動後、Nextjs プロジェクトが未作成であれば、自動的に `/var/www/html/${PROJECT_NAME}` 以下に `npx create-next-app@latest` により生成されます（install.sh スクリプトによる）。
+
+MySQL コンテナ起動時には以下の SQL が実行され、開発用とテスト用の2つのDBが作成されます：
+
+```sql
+-- 本番用データベースの作成
+CREATE DATABASE IF NOT EXISTS `{{ project_name }}_db` ...
+
+-- テスト用データベースの作成
+CREATE DATABASE IF NOT EXISTS `{{ project_name }}_db_test` ...
+```
+
+# 開発環境URLアクセス法
+
+- Nextjs アプリ: `http://127.0.0.1:PROXY_PUBLIC_PORT/`
+- PhpMyAdmin: `http://127.0.0.1:PHP_MYADMIN_PUBLIC_PORT/`
+
+
+# Makeコマンド
+
+```sh
+make container-init       # 初期セットアップ（環境 + ビルド＆起動）
+make docker-setup-env     # 環境のみセットアップ（env, SQL, sslなど）
+make container-build-up   # コンテナビルド＆起動
+make container-remove     # コンテナ停止＆データ削除＆初期化状態へ
+```
+
+# Dockerコマンド
+
+```sh
+# コンテナ停止
+cd .devcontainer && docker compose down
+
+# ボリューム・イメージも含め削除
+cd .devcontainer && docker compose down --rmi all --volumes --remove-orphans
+
+# 未使用（dangling）イメージ削除
+docker rmi $(docker images -f "dangling=true" -q)
+
+# キャッシュ削除
+docker builder prune
+```
