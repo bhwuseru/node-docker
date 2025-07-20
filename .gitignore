@@ -1,5 +1,5 @@
-/php/*/*
-/node/*/*
+/app/*/*
+/app/*/*
 /frontend/
 .bash_history
 .envrc

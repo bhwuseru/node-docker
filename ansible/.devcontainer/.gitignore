@@ -2,4 +2,4 @@
 db/data/
 db/init/init.sql
 db/log/
-php/log/php_errors.log
+app/log/
