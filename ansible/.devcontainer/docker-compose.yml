@@ -4,12 +4,12 @@ services:
     # platform: linux/x86_64
     build:
       context: ./proxy
-    container_name: ${APP_NAME}-proxy
+    container_name: ${PROJECT_NAME}-proxy
     ports:
       - ${PROXY_PUBLIC_PORT}:80
       - ${PROXY_SSL_PORT}:443
     depends_on:
-      - node
+      - app
       - db
     volumes:
       - ./proxy/${PROXY_TEMPLATE_NAME}:/etc/nginx/conf.d/default.conf.template
@@ -20,7 +20,7 @@ services:
     extra_hosts:
       - "${HOSTNAME}:${HOST_IP}"
     environment:
-      APP_NAME: ${APP_NAME}
+      APP_NAME: ${PROJECT_NAME}
       PROJECT_NAME: ${PROJECT_NAME}
       PROXY_SSL_PORT: ${PROXY_SSL_PORT}
     # 環境変数を渡す
@@ -28,7 +28,7 @@ services:
 
   Phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: ${APP_NAME}-phpmyadmin
+    container_name: ${PROJECT_NAME}-phpmyadmin
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: db
@@ -42,7 +42,7 @@ services:
       - ${PHP_MYADMIN_PUBLIC_PORT}:80
   db:
     # platform: 'linux/amd64'
-    container_name: ${APP_NAME}-db
+    container_name: ${PROJECT_NAME}-db
     build:
       context: ./db
       dockerfile: Dockerfile
@@ -59,21 +59,21 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Tokyo
-  node:
+  app:
     # platform: linux/x86_64
     build:
-      context: ./node
+      context: ./app
       args:
         PROJECT_NAME: ${PROJECT_NAME}
         USER: ${USER}
         PASSWORD: ${PASSWORD}
-    container_name: ${APP_NAME}-node
+    container_name: ${PROJECT_NAME}-app
     ports:
-      - ${NODE_PORT}:3000
-      - ${WEBSOCKET_PORT}:${SERVER_WEBSOCKET_PORT}
+      - ${APP_SERVE_PORT}:3000
+      - ${WEBSOCKET_PORT}:${WEBSOCKET_PORT}
     expose:
       - 3000
-      - ${SERVER_WEBSOCKET_PORT}
+      - ${WEBSOCKET_PORT}
     depends_on:
       - db
     volumes:
