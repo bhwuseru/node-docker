@@ -4,7 +4,7 @@ services:
     # platform: linux/x86_64
     build:
       context: ./proxy
-    container_name: ${APP_NAME}-proxy
+    container_name: ${PROJECT_NAME}-proxy
     ports:
       - ${PROXY_PUBLIC_PORT}:80
       - ${PROXY_SSL_PORT}:443
@@ -20,7 +20,7 @@ services:
     extra_hosts:
       - "${HOSTNAME}:${HOST_IP}"
     environment:
-      APP_NAME: ${APP_NAME}
+      APP_NAME: ${PROJECT_NAME}
       PROJECT_NAME: ${PROJECT_NAME}
       PROXY_SSL_PORT: ${PROXY_SSL_PORT}
     # 環境変数を渡す
@@ -28,7 +28,7 @@ services:
 
   Phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: ${APP_NAME}-phpmyadmin
+    container_name: ${PROJECT_NAME}-phpmyadmin
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: db
@@ -42,7 +42,7 @@ services:
       - ${PHP_MYADMIN_PUBLIC_PORT}:80
   db:
     # platform: 'linux/amd64'
-    container_name: ${APP_NAME}-db
+    container_name: ${PROJECT_NAME}-db
     build:
       context: ./db
       dockerfile: Dockerfile
@@ -67,7 +67,7 @@ services:
         PROJECT_NAME: ${PROJECT_NAME}
         USER: ${USER}
         PASSWORD: ${PASSWORD}
-    container_name: ${APP_NAME}-app
+    container_name: ${PROJECT_NAME}-app
     ports:
       - ${APP_SERVE_PORT}:3000
       - ${WEBSOCKET_PORT}:${WEBSOCKET_PORT}
