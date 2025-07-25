@@ -1,9 +1,6 @@
 # 環境構築資料（Ansible対応版）
 
 - [環境構築資料（Ansible対応版）](#環境構築資料ansible対応版)
-  - [置くところ](#置くところ)
-    - [構造](#構造)
-  - [dockerでSSLをつかう(windowsの方法)](#dockerでsslをつかうwindowsの方法)
   - [Ansible + Docker開発環境構築手順](#ansible--docker開発環境構築手順)
     - [必要条件とツールの導入](#必要条件とツールの導入)
     - [構築手順](#構築手順)
@@ -12,24 +9,6 @@
   - [開発環境URLアクセス法](#開発環境urlアクセス法)
   - [Makeコマンド](#makeコマンド)
   - [Dockerコマンド](#dockerコマンド)
-
-# 置くところ
-
-プロジェクトは WSL 上の Linux 環境（例：`~/projects/laravel-docker`）に配置することでパフォーマンスが向上します。
-
-# dockerでSSLをつかう(windowsの方法)
-
-## 作る
-
-参考: [https://shimota.app/windows環境にhttps-localhost-環境を作成する/](https://shimota.app/windows環境にhttps-localhost-環境を作成する/)
-
-1. Chocolatey を管理者 PowerShell でインストール
-2. `choco install mkcert` 実行後、`mkcert --install`
-3. `localhost.pem`, `localhost-key.pem` を保存
-
-## 使う
-
-`.devcontainer/proxy/ssl` に上記 pem ファイルを配置してください。 ※ 自動生成されない場合は手動配置が必要です。
 
 # Ansible + Docker開発環境構築手順
 
@@ -51,7 +30,7 @@ sudo apt update && sudo apt install -y ansible
 
 ## 構築手順
 
-1. `vars/secrets.example.yml` を `vars/secrets.yml` にリネームし、プロジェクト設定を記述：
+1. `ansible/vars/secrets.example.yml` を `ansible/vars/secrets.yml` にリネームし、プロジェクト設定を記述
 
 ```yml
 project_name: sample
@@ -64,15 +43,14 @@ proxy_template_name: default.conf.templateForSSL
 ...
 ```
 
-2. Make コマンドで開発環境を初期化：
+2. Make コマンドで開発環境を初期化
 
 ```sh
 make container-init
 ```
 
-このコマンドにより以下が自動実行されます：
+このコマンドにより以下が自動実行されます
 
-- `.devcontainer` → `.{{ project_name }}` にリネーム
 - `.env` ファイルの生成（テンプレートから）
 - `init.sql` の生成（テンプレートから）
 - `proxy/ssl` ディレクトリの作成と pem ファイルの発行（mkcert）
@@ -90,7 +68,7 @@ make container-init
 
 初回起動後、Nextjs プロジェクトが未作成であれば、自動的に `/var/www/html/${PROJECT_NAME}` 以下に `npx create-next-app@latest` により生成されます（install.sh スクリプトによる）。
 
-MySQL コンテナ起動時には以下の SQL が実行され、開発用とテスト用の2つのDBが作成されます：
+MySQL コンテナ起動時には以下の SQL が実行され、開発用とテスト用の2つのDBが作成されます
 
 ```sql
 -- 本番用データベースの作成
