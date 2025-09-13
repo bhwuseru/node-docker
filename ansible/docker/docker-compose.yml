@@ -23,8 +23,9 @@ services:
       APP_NAME: ${PROJECT_NAME}
       PROJECT_NAME: ${PROJECT_NAME}
       PROXY_SSL_PORT: ${PROXY_SSL_PORT}
+      WEBSOCKET_PORT: ${WEBSOCKET_PORT} 
     # 環境変数を渡す
-    command: /bin/sh -c "envsubst '$$PROJECT_NAME $$PROXY_SSL_PORT $$HOSTNAME' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    command: /bin/sh -c "envsubst '$$PROJECT_NAME $$PROXY_SSL_PORT $$HOSTNAME $$WEBSOCKET_PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
 
   Phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
@@ -68,9 +69,8 @@ services:
         USER: ${USER}
         PASSWORD: ${PASSWORD}
     container_name: ${PROJECT_NAME}-app
-    ports:
-      - ${APP_SERVE_PORT}:3000
-      - ${WEBSOCKET_PORT}:${WEBSOCKET_PORT}
+    # ports:
+      # - ${WEBSOCKET_PORT}:${WEBSOCKET_PORT}
     expose:
       - 3000
       - ${WEBSOCKET_PORT}
